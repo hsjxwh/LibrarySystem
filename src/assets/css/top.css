@@ -1,0 +1,34 @@
+.top-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  position: sticky;
+  color: white;
+}
+
+.button-font {
+  color: #616060a9;
+}
+
+.input-item {
+  color: #000;
+}
+
+.register-link {
+  color: #9705f8;
+}
+
+.button-group {
+  color: #3a0783 !important;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  color: #fff;
+}

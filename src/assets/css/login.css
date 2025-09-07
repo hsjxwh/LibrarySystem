@@ -1,0 +1,25 @@
+.input-item{
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    width: 350px;
+}
+.label-text{
+    width: 80px;
+    text-align: right;
+    margin-right: 12px;
+    font-size: 14px;
+}
+.input-control{
+   flex:1;
+   padding:8px 12px;
+   border:1px solid #3a0783;
+   border-radius:4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.input-control:focus{
+    outline:none;
+    border-color: #409eff;
+    box-shadow: 0 0 2px rgba(142, 178, 214, 0.2);
+}

@@ -5,7 +5,4 @@
     }
   },
   "exclude": ["node_modules", "dist"],
-  "Server":{
-      "port": 8081
-  }
 }
