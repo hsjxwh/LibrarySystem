@@ -1,0 +1,19 @@
+.form-container {
+  width: 1000px;
+  margin: 0;
+  padding: 20px;
+}
+.form-item {
+  display: flex;
+  margin-bottom: 20px;
+  align-items: center;
+  padding-top: 6px;
+}
+.label {
+  width: 150px;
+  padding-right: 15px;
+  text-align: left;
+}
+.nomal-div {
+  margin-top: 20px;
+}

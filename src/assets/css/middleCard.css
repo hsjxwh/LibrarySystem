@@ -1,0 +1,34 @@
+.normal-p {
+  text-indent: 2em;
+  margin-bottom: 1em;
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.bord-card {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  max-width: 1200px;
+  overflow: visible;
+  box-sizing: border-box;
+}
+.card-container {
+  display: flex;
+  min-height: calc(100vh - 60px);
+  padding: 20px;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+.form-title {
+  color: #3a0783;
+  font-weight: bold;
+  font-size: 35px;
+  margin-bottom: 20px;
+}
+.el-main {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

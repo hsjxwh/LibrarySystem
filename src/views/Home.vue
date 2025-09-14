@@ -73,32 +73,6 @@
             </el-button>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="骑手登录">
-          <div class="form-container">
-            <div class="input-item">
-              <label class="label-text">账号:</label>
-              <input v-model="id" type="text" class="input-control" placeholder="请输入账号" />
-            </div>
-            <div class="input-item">
-              <label class="label-text">密码:</label>
-              <input
-                v-model="password"
-                type="password"
-                class="input-control"
-                placeholder="请输入密码"
-              />
-            </div>
-            <div class="button-group">
-              <el-button
-                v-on:click="loginSubmit('/checkRiderPassword')"
-                class="login"
-                color="#3a0783"
-              >
-                登录
-              </el-button>
-            </div>
-          </div>
-        </el-tab-pane>
       </el-tabs>
     </el-dialog>
     <el-dialog
@@ -168,13 +142,10 @@ function getDestAndJump(url) {
       dest.value = '/BookStorage';
       break;
     case '/checkManagerPassword':
-      dest.value = '/Manager';
-      break;
-    case '/checkRiderPassword':
-      dest.value = '/Rider';
+      dest.value = '/Manager/OperateBooks';
       break;
     default:
-      ElMessage.error('网站出错，请联系管理员1074702558@qq.com');
+      ElMessage.error('网站出错，请联系管理员');
   }
   goDest(dest.value);
 }
@@ -227,14 +198,14 @@ function loginSubmit(url) {
         ElMessage.error(error.response.data);
         return;
       }
-      ElMessage.error('网站出错，请联系管理员1074702558@qq.com');
+      ElMessage.error('网站出错，请联系管理员');
     });
 }
 function registerSubmit() {}
 </script>
 
 <style scoped>
-@import url('../assets/css/login.css');
+@import url('../assets/css/dialog.css');
 @import url('../assets/css/top.css');
 .login {
   margin-left: 40px;

@@ -1,0 +1,10 @@
+:deep(.el-pagination .el-pager li.is-active.number) {
+  background-color: #3a0783 !important;
+  color: #ffffff !important;
+  border-radius: 4px;
+}
+
+:deep(.el-pagination .el-pager li:not(.is-active):hover) {
+  color: #9705f8 !important;
+  background-color: #f0e6ff !important;
+}
