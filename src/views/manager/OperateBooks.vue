@@ -25,6 +25,9 @@
               <el-dropdown-item>
                 <router-link to="/Manager/WaitToProcurement">待采购列表</router-link>
               </el-dropdown-item>
+              <el-dropdown-item>
+                <router-link to="/Manager/ForceQuit">管理用户登录情况</router-link>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -105,7 +108,7 @@
               v-model="description"
               placeholder="请输入图书的描述"
               type="textarea"
-              .rows="4"
+              .rows="8"
               show-word-limit
               class="form-input"
             />
@@ -200,13 +203,19 @@ function submitBook() {
   formData.append('head', head.value);
   formData.append('description', description.value);
   service
-    .post('/submitToAddBook', formData, {
+    .post('/manager/submitToAddBook', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
     .then((response) => {
       ElMessage.success(response.data);
+      name.value = '';
+      author.value = '';
+      type.value = '';
+      price.value = null;
+      head.value = '';
+      description.value = '';
     })
     .catch((error) => {
       if (error.response && error.response.status === 403) {
@@ -227,7 +236,7 @@ function submitFile() {
   const formData = new FormData();
   formData.append('file', file);
   service
-    .post('/submitMaterialsToAddBooks', formData, {
+    .post('/manager/submitMaterialsToAddBooks', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -255,7 +264,7 @@ function submitFile() {
 //下载模板文件
 function downloadTemplate() {
   service
-    .get('/downloadTemplateFile', {
+    .get('/manager/downloadTemplateFile', {
       responseType: 'blob',
     })
     .then((response) => {
@@ -290,7 +299,7 @@ function submitDelete() {
     return;
   }
   service
-    .delete('/deleteBook', {
+    .delete('/manager/deleteBook', {
       params: {
         name: name.value,
         author: author.value,

@@ -27,6 +27,9 @@
                   <el-dropdown-item>
                     <router-link to="/Manager/WaitToProcurement">待采购列表</router-link>
                   </el-dropdown-item>
+                  <el-dropdown-item>
+                    <router-link to="/Manager/ForceQuit">管理用户登录情况</router-link>
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -139,7 +142,7 @@ onMounted(() => {
 });
 function getData() {
   service
-    .get('/getAllRecommendWaitToProcess')
+    .get('/manager/getAllRecommendWaitToProcess')
     .then((response) => {
       const dataWithRank = response.data.map((item, index) => {
         return {
@@ -168,7 +171,7 @@ function submitRecord(row) {
 //删除这条记录
 function deleteRecord(row) {
   service
-    .delete('/deleteRecommendToStore', {
+    .delete('/manager/deleteRecommendToStore', {
       params: {
         id: row.id,
         time: row.date,
@@ -207,7 +210,7 @@ function submit() {
   formData.append('description', description.value);
   formData.append('type', currentRow.value.type);
   service
-    .post('/addPurchaseBook', formData, {
+    .post('/manager/addPurchaseBook', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },

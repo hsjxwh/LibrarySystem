@@ -67,7 +67,7 @@ onMounted(() => {
 });
 function getCharts() {
   service
-    .get('/getCharts')
+    .get('/user/getCharts')
     .then((response) => {
       const dataWithRank = response.data.map((item, index) => {
         return {

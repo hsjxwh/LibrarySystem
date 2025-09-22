@@ -241,7 +241,7 @@ function search() {
     if (letterStates.value[letter]) selectedLetters.push(letter);
   }
   service
-    .get('/getAllLibraryStorage', {
+    .get('/user/getAllLibraryStorage', {
       params: {
         type: contentType.value === '全部' ? '' : contentType.value,
         hasBorrow: hasBorrow.value === '全部' ? '' : hasBorrow.value,

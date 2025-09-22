@@ -80,7 +80,9 @@
         @close="handleDialogClose"
       >
         <div class="qrcode-container">
-          <qrcode-vue :value="QR" :size="200" level="H"></qrcode-vue>
+          <div>
+            <qrcode-vue :value="QR" :size="200" level="H"></qrcode-vue>
+          </div>
           <div>
             <el-button class="button2" @click="getQR">刷新</el-button>
           </div>
@@ -135,7 +137,7 @@ function switchMode(mode) {
 function getQR() {
   dialogVisible.value = true;
   service
-    .get('/generateQrToken')
+    .get('/user/generateQrToken')
     .then((response) => {
       QR.value = response.data;
       startAutoRefresh();
@@ -156,7 +158,7 @@ function handleDialogClose() {
 }
 function getInfo() {
   service
-    .get('/getUseInfo')
+    .get('/user/getUseInfo')
     .then((response) => {
       name.value = response.data.name;
       num.value = response.data.num;

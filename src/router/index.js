@@ -14,6 +14,8 @@ import Recommend from '@/views/user/Recommend.vue';
 import RecommendToStore from '@/views/user/RecommendToStore.vue';
 import ProcessRecommendRecord from '@/views/manager/ProcessRecommendRecord.vue';
 import WaitToProcurement from '@/views/manager/WaitToProcurement.vue';
+import ForceQuit from '@/views/manager/ForceQuit.vue';
+import TestUser from '@/views/manager/TestUser.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/infolast', component: Info },
@@ -28,6 +30,8 @@ const routes = [
   { path: '/RecommendStore', component: RecommendToStore },
   { path: '/Manager/ProcessRecommendRecord', component: ProcessRecommendRecord },
   { path: '/Manager/WaitToProcurement', component: WaitToProcurement },
+  { path: '/Manager/ForceQuit', component: ForceQuit },
+  { path: '/Manager/TestUser', component: TestUser },
 ];
 const router = createRouter({
   history: createWebHistory(),

@@ -37,7 +37,7 @@
             </div>
             <div class="button-group">
               <el-button
-                v-on:click="loginSubmit('/checkUserPassword')"
+                v-on:click="loginSubmit('/user/checkUserPassword')"
                 color="#3a0783"
                 class="login"
               >
@@ -65,7 +65,7 @@
               />
             </div>
             <el-button
-              v-on:click="loginSubmit('/checkManagerPassword')"
+              v-on:click="loginSubmit('/manager/checkManagerPassword')"
               class="login"
               color="#3a0783"
             >
@@ -138,10 +138,10 @@ const name = ref('');
 const dest = ref('');
 function getDestAndJump(url) {
   switch (url) {
-    case '/checkUserPassword':
+    case '/user/checkUserPassword':
       dest.value = '/BookStorage';
       break;
-    case '/checkManagerPassword':
+    case '/manager/checkManagerPassword':
       dest.value = '/Manager/OperateBooks';
       break;
     default:

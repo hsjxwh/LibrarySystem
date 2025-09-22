@@ -156,7 +156,7 @@ function submitRecommendBook() {
   formData.append('type', type.value);
   formData.append('description', description.value);
   service
-    .post('/postRecommendToStore', formData, {
+    .post('/user/postRecommendToStore', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -172,6 +172,9 @@ function submitRecommendBook() {
       }
       siteError();
     });
+}
+function handleChange(page) {
+  handleCurrentChange(allData, tableData, page, currentPage, pageSize);
 }
 </script>
 <style scoped>
