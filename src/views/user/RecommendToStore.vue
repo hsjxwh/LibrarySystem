@@ -22,6 +22,9 @@
                     <router-link to="/ReaderBorrowRecord">个人借阅记录</router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>
+                    <router-link to="/ReaderOrders">个人订单记录</router-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
                     <router-link to="/BookRules">书馆借阅规则</router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>

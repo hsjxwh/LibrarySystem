@@ -4,7 +4,7 @@
       <el-col :span="24">
         <div class="top-bar" style="height: 60px; background-color: #3a0783">
           <div class="top-content">
-            <div class="title">待采购列表</div>
+            <div class="title">用户身份码测试页面</div>
             <el-dropdown>
               <span class="el-dropdown-link">
                 <Expand style="width: 2em; height: 1.5em; margin-top: 8px; color: #fff" />
@@ -55,10 +55,12 @@ import { ref } from 'vue';
 import service from '@/utils/global';
 import { siteError } from '@/utils/error';
 import QrcodeVue from 'qrcode.vue';
+import { ElMessage } from 'element-plus';
 const id = ref();
+const QR = ref('');
 function getQR() {
   service
-    .get('/manager/generateQrToken', {
+    .get('/user/generateTestQrToken', {
       params: {
         id: id.value,
       },

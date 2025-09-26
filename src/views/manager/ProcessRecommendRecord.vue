@@ -19,6 +19,9 @@
                     <router-link to="/Manager/BorrowRecord">借阅服务管理</router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>
+                    <router-link to="/Manager/OrdersCheck">管理订单记录</router-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
                     <router-link to="/BookStorage">馆藏查询</router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>
@@ -286,7 +289,6 @@ function dealWithTime(time) {
   color: white;
 }
 
-/* 表单样式 */
 .form-box {
   display: flex;
   align-items: center;

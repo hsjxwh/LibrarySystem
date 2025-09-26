@@ -22,6 +22,9 @@
                     <router-link to="/ReaderBorrowRecord">个人借阅记录</router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>
+                    <router-link to="/ReaderOrders">个人订单记录</router-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
                     <router-link to="/BookRules">书馆借阅规则</router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>
@@ -52,7 +55,8 @@
           <p class="normal-p">(1)100元的开通金额，单人同时能借20本书</p>
           <p class="normal-p">(2)50元的开通金额，单人同时能借10本书</p>
           <p class="normal-p">
-            开通过，读者可通过携带想借阅的书籍到服务台，通过右上角导航至个人信息页，出示二维码给管理员即可实现借阅。
+            开通过，读者可通过携带想借阅的书籍到服务台，通过右上角导航至个人信息页，出示二维码给管理员即可实现借阅。开通过后也可以改变服务类型，去服务台办理即可。
+            <strong>升档需要充值50元，降档需要满足余额大于等于50元的条件。</strong>
           </p>
           <p class="normal-p">
             <strong>

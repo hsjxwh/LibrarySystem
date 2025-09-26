@@ -17,6 +17,9 @@
                 <router-link to="/Manager/BorrowRecord">借阅服务管理</router-link>
               </el-dropdown-item>
               <el-dropdown-item>
+                <router-link to="/Manager/OrdersCheck">管理订单记录</router-link>
+              </el-dropdown-item>
+              <el-dropdown-item>
                 <router-link to="/BookStorage">馆藏查询</router-link>
               </el-dropdown-item>
               <el-dropdown-item>
@@ -49,37 +52,37 @@
         </div>
       </el-aside>
       <el-main>
+        <!-- 开通借阅服务 -->
         <div v-if="activeContent === 'open'" class="form-container">
           <div class="form-item">
             <el-button class="button1" @click="checkIdentity">连接电脑/手机端</el-button>
           </div>
           <div class="form-item">
             <span>用户id:</span>
-            <el-input class="form-input" v-model="id" placeholder="请输入用户编号"></el-input>
+            <el-input
+              class="form-input"
+              v-model="id"
+              placeholder="请扫描用户身份码获取用户账号"
+            ></el-input>
           </div>
           <div class="form-item">服务类型:</div>
           <div class="form-item">
             <el-button class="button1" @click="serviceStart(100)">100元初始金额</el-button>
             <el-button class="button1" @click="serviceStart(50)">50元初始金额</el-button>
           </div>
-          <el-dialog title="开通服务" v-model="startServiceeDialogVisible" width="500px">
-            <div>
-              <span class="label">读者编号:</span>
-              <span>{{ id }}</span>
-            </div>
-            <div>
-              <span class="label">服务类型:</span>
-              <span>{{ serviceMode }}</span>
-            </div>
-          </el-dialog>
         </div>
+        <!-- 用户充值 -->
         <div v-if="activeContent === 'rechange'" class="form-container">
           <div class="form-item">
             <el-button class="button1" @click="checkIdentity">连接电脑/手机端</el-button>
           </div>
           <div class="form-item">
             <span>用户id:</span>
-            <el-input class="form-input" v-model="id" placeholder="请输入用户编号"></el-input>
+            <el-input
+              class="form-input"
+              v-model="id"
+              placeholder="请扫描用户身份码获取用户账号"
+            ></el-input>
           </div>
           <div class="form-item">
             <span>充值金额:</span>
@@ -90,6 +93,7 @@
           </div>
           <el-dialog title="用户充值" v-model="rechangeDialogVisible" width="500px"></el-dialog>
         </div>
+        <!-- 查看所有借阅记录并操作 -->
         <div v-if="activeContent === 'record'" class="form-container">
           <el-table
             :data="tableData"
@@ -114,6 +118,7 @@
             <el-table-column prop="returnTime" label="还书时间" width="200" class="form-item" />
             <el-table-column prop="deposit" label="扣除押金" width="100" class="form-item" />
             <el-table-column prop="renewTime" label="续借次数" width="100" class="form-item" />
+            <el-table-column prop="deposit" label="订单编号" width="75" class="form-item" />
             <el-table-column label="管理" width="200" class="form-item">
               <template #default="scope">
                 <el-button type="primary" size="small" @click="renew(scope.row)" class="button1">
@@ -205,58 +210,50 @@
             />
           </div>
         </div>
-        <div v-if="activeContent === 'checkUser'" class="form-container">
+        <!-- 新增借阅记录 -->
+        <div v-if="activeContent === 'book'" class="form-container">
           <div class="form-item">
             <el-button class="button1" @click="checkIdentity">连接电脑/手机端</el-button>
           </div>
           <div class="form-item">
-            <span class="label">读者编号:</span>
-            <el-input class="form-input" v-model="id" placeholder="请输入读者的编号" />
+            <span>用户id:</span>
+            <el-input
+              class="form-input"
+              v-model="id"
+              placeholder="请扫描用户身份码获取用户账号"
+            ></el-input>
           </div>
           <div class="form-item">
-            <span class="label">书名:</span>
-            <el-input class="form-input" v-model="name" placeholder="请输入图书的名字" />
+            <span>书籍id:</span>
+            <el-input class="form-input" v-model="bookId" placeholder="请查询馆藏"></el-input>
           </div>
           <div class="form-item">
-            <span class="label">作者名:</span>
-            <el-input class="form-input" v-model="author" placeholder="请输入图书的作者名字" />
+            <el-button class="button1" @click="wantSubmitBook">提交借阅记录</el-button>
           </div>
-          <div>
-            <el-button class="button1" @click="wantSubmitBook">提交</el-button>
-          </div>
-          <el-dialog title="请检查信息正误" v-model="bookDialogVisible" width="500px">
-            <div class="form-box">
-              <span>读者id:</span>
-              <span>{{ id }}</span>
-            </div>
-            <div class="form-box">
-              <span>书名:</span>
-              <span>{{ name }}</span>
-            </div>
-            <div class="form-box">
-              <span>作者:</span>
-              <span>{{ author }}</span>
-            </div>
-            <div class="form-box">
-              <el-button type="primary" size="small" @click="submitBook" class="button1">
-                确定
-              </el-button>
-              <el-button type="primary" size="small" @click="closeBook" class="button1">
-                取消
-              </el-button>
-            </div>
-          </el-dialog>
         </div>
         <el-dialog title="连接电脑/手机" v-model="socketDialogVisible" width="500px">
           <div class="form-box">
-            <el-button type="primary" size="small" @click="phoneConect" class="button1">
+            <el-button
+              type="primary"
+              style="padding-bottom: 20px"
+              size="middle"
+              @click="phoneConect"
+              class="button1"
+            >
               手机端
             </el-button>
+            <span>初次时扫描电脑连接码，提示连接成功后即可识别用户身份码\付款码</span>
           </div>
           <div>
             <el-button type="primary" size="small" @click="computerContect" class="button1">
               电脑端
             </el-button>
+          </div>
+          <div>
+            <el-button type="primary" size="small" @click="disconnect" class="button1">
+              关闭连接
+            </el-button>
+            <span>通用，一方关闭即可</span>
           </div>
         </el-dialog>
         <el-dialog title="请用手机网页端扫描此二维码" v-model="qrDialogVisible" width="500px">
@@ -264,8 +261,30 @@
             <qrcode-vue :value="QR" :size="200" level="H"></qrcode-vue>
           </div>
         </el-dialog>
+        <el-dialog title="请见确认信息" v-model="bookDialogVisible" width="500px">
+          <div class="form-item">用户编号:{{ id }}</div>
+          <div class="form-item">书籍编号:{{ bookId }}</div>
+          <div class="form-item">
+            <el-button class="button1" @click="submitBook">确定</el-button>
+            <el-button class="button1" @click="closeBook">取消</el-button>
+          </div>
+        </el-dialog>
+        <el-dialog title="开通服务" v-model="startServiceeDialogVisible" width="500px">
+          <div>
+            <span class="label">读者编号:</span>
+            <span>{{ id }}</span>
+          </div>
+          <div>
+            <span class="label">服务类型:</span>
+            <span>{{ serviceMode }}</span>
+          </div>
+          <div class="form-item">
+            <el-button class="button1" @click="startService">确定</el-button>
+            <el-button class="button1" @click="closeService">取消</el-button>
+          </div>
+        </el-dialog>
         <div class="scanner-container" v-if="scanDialogVisible">
-          <div class="exit-button" @click="stopScanning">
+          <div class="exit-button" @click="stopScanningOnly">
             <el-icon><ArrowLeft /></el-icon>
           </div>
           <video ref="video" autoplay playsinline muted class="video-element"></video>
@@ -286,7 +305,7 @@ import { ElMessage } from 'element-plus';
 import { siteError } from '@/utils/error';
 import jsQR from 'jsqr';
 import { ArrowLeft } from '@element-plus/icons-vue';
-import { goDest } from '@/utils/router';
+import QrcodeVue from 'qrcode.vue';
 const renewDialogVisible = ref(false);
 const ReturnDialogVisible = ref(false);
 const rechangeDialogVisible = ref(false);
@@ -299,6 +318,7 @@ const allData = ref([]);
 const activeContent = ref('open');
 const name = ref('');
 const id = ref('');
+const bookId = ref('');
 const author = ref('');
 const refund = ref('');
 const bookDialogVisible = ref(false);
@@ -308,6 +328,7 @@ const rechange = ref('');
 const serviceMode = ref('');
 const qrDialogVisible = ref(false);
 const scanDialogVisible = ref(false);
+const pay = ref(false);
 let connection = ref(null);
 const QR = ref();
 const error = ref(null);
@@ -323,44 +344,75 @@ const isScanning = ref(false);
 const animationFrameId = ref(null);
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
-connection.onopen = function () {
-  ElMessage.success('连接服务器成功');
+//定时器
+const connectionTimer = ref(null);
+//连接时长
+const CONNECTION_TIMEOUT = 60 * 60 * 1000;
+const serviceType = ref();
+const closeMessage = {
+  status: 3,
+  id: -1,
+  message: '正常关闭连接',
 };
-connection.onmessage = function (event) {
-  const data = JSON.parse(event.data);
-  if (data.status === 1) {
-    id.value = data.id;
-    ElMessage.info(`读取到次用户编号为${id.value}`);
-  } else if (data.status === 2) {
-    ElMessage.warning(data.message);
-    connection.close();
-  } else if (data.status === 3) {
-    ElMessage.info('安全关闭');
-    connection.close();
-  } else if (data.status === 4) {
-    ElMessage.success(data.message);
-  } else {
-    ElMessage.error('网站出错，联系管理员');
-  }
-};
-connection.onclose = function (event) {
-  ElMessage.info('连接已关闭');
-};
-connection.onerror = function (event) {};
+//绑定事件监听器
+function setupWebSocketEvents() {
+  connection.value.onopen = function () {
+    ElMessage.success('连接服务器成功');
+    startConnectionTimer();
+  };
+  connection.value.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+    resetConnectionTimer();
+    //安全传输
+    if (data.status === 1) {
+      id.value = data.id;
+      ElMessage.info(`读取到次用户编号为${id.value}`);
+    }
+    //危险关闭
+    else if (data.status === 2) {
+      ElMessage.warning(data.message);
+      connection.value.close();
+    }
+    //正常关闭
+    else if (data.status === 3) {
+      ElMessage.info('安全关闭');
+      connection.value.close();
+    }
+    //成功登录，或者说成功开通服务，成功充值
+    else if (data.status === 4 || data.status === 5 || data.status === 6) {
+      ElMessage.success(data.message);
+    } else {
+      ElMessage.error('网站出错，联系管理员');
+    }
+    connection.value.onclose = function (event) {
+      ElMessage.info('连接已关闭');
+      socketDialogVisible.value = false;
+    };
+    connection.value.onerror = function (event) {
+      ElMessage.error('连接产生错误');
+    };
+  };
+}
 //如果时电脑端，则需要点击按钮之后出现一个有二维码的界面，让用户能够成功的扫描
-function computerContect() {
-  getQR();
+async function computerContect() {
+  if (connection.value && connection.value.readyState === WebSocket.OPEN) {
+    ElMessage.info('您已成功来连接，不需要再生成连接二维码');
+  } else {
+    await getQR();
+    connectToken.value = QR.value;
+    connection.value = new WebSocket(
+      `ws://localhost:8080/manager/connect?connectToken=${connectToken.value}&device=pc`
+    );
+    setupWebSocketEvents();
+  }
   qrDialogVisible.value = true;
-  connectToken.value = QR.value;
-  connection.value = new WebSocket(
-    `wss://whswlibrarysystem.top/manager/connect?connectToken=${connectToken.value}&device=pc`
-  );
 }
 //手机端扫描电脑端提供的二维码，使得假如websocket连接
 function phoneConect() {
   scanDialogVisible.value = true;
   startScanning();
 }
+//请求摄像头权限，比昂获取视频流
 const startScanning = async () => {
   error.value = null;
   scanResult.value = null;
@@ -384,6 +436,7 @@ const startScanning = async () => {
     err.value = '无法访问摄像头';
   }
 };
+//扫描身份码
 function scanning() {
   if (!isScanning.value) return;
   if (video.value.readyState === video.value.HAVE_ENOUGH_DATA) {
@@ -396,39 +449,103 @@ function scanning() {
         inversionAttempts: 'dontInvert',
       });
       if (code) {
-        connectToken.value = code.data;
-        connection = new WebSocket(
-          `wss://whswlibrarysystem.top/manager/connect?connectToken={${connectToken.value}}&device=phone`
-        );
-        stopScanning();
+        if (!connection.value || connection.value.readyState !== WebSocket.OPEN) {
+          connectToken.value = code.data;
+          connection.value = new WebSocket(
+            `ws://localhost:8080/manager/connect?connectToken=${connectToken.value}&device=phone`
+          );
+          setupWebSocketEvents();
+          stopScanningOnly();
+        } else {
+          if (pay.value) {
+            connection.value.send(
+              JSON.stringify({
+                status: 5,
+                id: -1,
+                message: code.data,
+                serviceType: serviceType.value,
+              })
+            );
+          } else {
+            connection.value.send(
+              JSON.stringify({
+                status: 1,
+                id: code.data,
+                message: '扫描到身份码信息',
+                serviceType: serviceType.value,
+              })
+            );
+          }
+          stopScanningOnly();
+          pay.value = false;
+          serviceType.value = null;
+          serviceMode.value = null;
+        }
       }
     } catch (err) {
       ElMessage.info(err);
     }
     if (isScanning.value) {
-      animationFrameId = requestAnimationFrame(scanning);
+      animationFrameId.value = requestAnimationFrame(scanning);
     }
   }
 }
-function stopScanning() {
+//仅关闭扫描不关闭连接
+function stopScanningOnly() {
   isScanning.value = false;
-  cancelAnimationFrame(animationFrameId);
+  if (animationFrameId.value) {
+    cancelAnimationFrame(animationFrameId.value);
+  }
   if (stream.value) {
     stream.value.getTracks().forEach((element) => {
       element.stop();
     });
   }
-  if (video.value) {
-    video.value.srcObject = null;
-  }
   scanDialogVisible.value = false;
+}
+function stopScanning() {
+  stopScanningOnly();
+  if (connection.value && connection.value.readyState === WebSocket.OPEN) {
+    connection.send(
+      JSON.stringify({
+        status: 3,
+        id: -1,
+        message: '正常关闭连接',
+      })
+    );
+    connection.value.close();
+  }
+}
+function disconnect() {
+  if (connection.value) {
+    connection.value.close();
+  }
+  clearConnectionTimer();
 }
 onUnmounted(() => {
   stopScanning();
-  if (connection) {
-    connection.value.close();
-  }
+  disconnect();
+  clearConnectionTimer();
 });
+function startConnectionTimer() {
+  clearConnectionTimer();
+  connectionTimer.value = setTimeout(() => {
+    ElMessage.warning('连接超时，自动断开');
+    if (connection.value && connection.value.readyState === WebSocket.OPEN) {
+      connection.value.close();
+    }
+  }, CONNECTION_TIMEOUT);
+}
+function resetConnectionTimer() {
+  clearConnectionTimer();
+  startConnectionTimer();
+}
+function clearConnectionTimer() {
+  if (connectionTimer.value) {
+    clearTimeout(connectionTimer.value);
+    connectionTimer.value = null;
+  }
+}
 function handleChange(page) {
   handleCurrentChange(allData, tableData, page, currentPage, pageSize);
 }
@@ -441,7 +558,7 @@ function checkIdentity() {
 }
 //获得手机端需要扫描的二维码
 function getQR() {
-  service
+  return service
     .get('/manager/generateQrToken', {
       params: {
         device: 'pc',
@@ -452,6 +569,7 @@ function getQR() {
     })
     .then((response) => {
       QR.value = response.data;
+      return response.data;
     })
     .catch((error) => {
       if (error.response) {
@@ -461,6 +579,7 @@ function getQR() {
       siteError();
     });
 }
+//获取借阅记录
 function getRecord() {
   service
     .get('/manager/getAllBookRecord', {
@@ -490,6 +609,7 @@ function getRecord() {
           name: item.name,
           author: item.author,
           renewTime: item.renewTime,
+          orderId: item.orderId == -1 ? '-' : item.orderId,
         };
       });
       allData.value = dataWithRank;
@@ -504,6 +624,7 @@ function getRecord() {
       siteError();
     });
 }
+//处理时间的展示
 function dealWithTime(time) {
   const dateObj = new Date(time);
   const year = dateObj.getFullYear();
@@ -536,9 +657,9 @@ function submitRenew(row) {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
-    .response((response) => {
+    .then((response) => {
       ElMessage.info(response.data.info);
-      row.expectedReturnTime == dealWithTime(response.data.expireTime);
+      row.expectedReturnTime = dealWithTime(response.data.expireTime);
       closeRenew();
     })
     .catch((error) => {
@@ -596,8 +717,7 @@ function closeReturn() {
 function submitBook() {
   const formData = new URLSearchParams();
   formData.append('id', id.value);
-  formData.append('name', name.value);
-  formData.append('author', author.value);
+  formData.append('bookId', bookId.value);
   service
     .post('/manager/addBookRecord', formData, {
       headers: {
@@ -624,12 +744,8 @@ function wantSubmitBook() {
     ElMessage.warning('请输入读者编号');
     return;
   }
-  if (name.value.trim().length <= 0) {
-    ElMessage.warning('请输入书籍名称');
-    return;
-  }
-  if (author.value.trim().length <= 0) {
-    ElMessage.warning('请输入书籍作者');
+  if (bookId.value.trim().length <= 0) {
+    ElMessage.warning('请输入书籍编号');
     return;
   }
   bookDialogVisible.value = true;
@@ -644,7 +760,16 @@ function serviceStart(money) {
     ElMessage.warning('请输入读者编号');
     return;
   }
-  serviceMode.value = money + '元';
+  if (money == 50) {
+    serviceMode.value = '开通50元服务类型';
+    serviceType.value = 1;
+  } else if (money == 100) {
+    serviceMode.value = '开通100元服务类型';
+    serviceType.value = 2;
+  } else {
+    ElMessage.warning('服务类型错误');
+    return;
+  }
   startServiceeDialogVisible.value = true;
 }
 //显示充值窗口
@@ -663,6 +788,15 @@ function userRechange() {
     }
   }
   rechangeDialogVisible.value = true;
+}
+//修改用户的目前拥有的服务
+function startService() {
+  pay.value = true;
+  phoneConect();
+}
+//关闭服务窗口
+function closeService() {
+  startServiceeDialogVisible.value = false;
 }
 </script>
 <style scoped>
@@ -737,8 +871,8 @@ function userRechange() {
 }
 
 .scan-frame {
-  width: 70%;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   border: 2px solid #fff;
   border-radius: 10px;
   box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.3); /* 创建四周的暗色遮罩 */
@@ -746,7 +880,7 @@ function userRechange() {
 
 .scan-line {
   position: absolute;
-  height: 2px;
+  height: 3px;
   width: 70%;
   background-color: #3a0783; /* 紫色扫描线 */
   animation: scan 2s infinite linear; /* 持续动画效果 */

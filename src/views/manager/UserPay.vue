@@ -4,7 +4,7 @@
       <el-col :span="24">
         <div class="top-bar" style="height: 60px; background-color: #3a0783">
           <div class="top-content">
-            <div class="title">管理用户登录情况</div>
+            <div class="title">用户支付测试页面</div>
             <el-dropdown>
               <span class="el-dropdown-link">
                 <Expand style="width: 2em; height: 1.5em; margin-top: 8px; color: #fff" />
@@ -17,9 +17,6 @@
                   </el-dropdown-item>
                   <el-dropdown-item>
                     <router-link to="/Manager/BorrowRecord">借阅服务管理</router-link>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <router-link to="/Manager/OrdersCheck">管理订单记录</router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>
                     <router-link to="/BookStorage">馆藏查询</router-link>
@@ -41,8 +38,58 @@
       </el-col>
     </el-row>
   </div>
+  <div>
+    <div class="qrcode-container">
+      <div>
+        <el-input type="text" placeholder="请输入用户编号" v-model="id"></el-input>
+      </div>
+      <div>
+        <el-input type="text" placeholder="请输入金额" v-model="money"></el-input>
+      </div>
+      <div>
+        <el-input type="text" placeholder="请输入用途" v-model="purpose"></el-input>
+      </div>
+      <qrcode-vue :value="QR" :size="200" level="H"></qrcode-vue>
+      <div>
+        <el-button class="button2" @click="getQR">获取二维码</el-button>
+      </div>
+    </div>
+  </div>
 </template>
-<script setup></script>
+<script setup>
+import { ref } from 'vue';
+import service from '@/utils/global';
+import { siteError } from '@/utils/error';
+import QrcodeVue from 'qrcode.vue';
+import { ElMessage } from 'element-plus';
+const id = ref(null);
+const money = ref(null);
+const purpose = ref('');
+const QR = ref('');
+function getQR() {
+  service
+    .get('/user/getPayQr', {
+      params: {
+        id: id.value,
+        money: money.value,
+        purpose: purpose.value,
+      },
+      paramsSerializer: {
+        indexes: null,
+      },
+    })
+    .then((response) => {
+      QR.value = response.data;
+    })
+    .catch((error) => {
+      if (error.response) {
+        ElMessage.error(error.response.data);
+        return;
+      }
+      siteError();
+    });
+}
+</script>
 <style scoped>
 @import url(../../assets/css/top.css);
 @import url(../../assets/css/dropdown.css);

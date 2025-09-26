@@ -23,6 +23,9 @@
                       <router-link to="/ReaderBorrowRecord">个人借阅记录</router-link>
                     </el-dropdown-item>
                     <el-dropdown-item>
+                      <router-link to="/ReaderOrders">个人订单记录</router-link>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
                       <router-link to="/BookRules">书馆借阅规则</router-link>
                     </el-dropdown-item>
                     <el-dropdown-item>
@@ -130,6 +133,7 @@
     <div class="data-box">
       <el-card style="width: 100%" shadow="never" class="data-card">
         <el-table :data="tableData" style="width: 100%; margin-left: 20px" stripe>
+          <el-table-column prop="id" label="书籍编号" width="150" class="form-item" />
           <el-table-column prop="name" label="书名" width="250" class="form-item" />
           <el-table-column prop="author" label="作者" width="250" class="form-item" />
           <el-table-column prop="type" label="类型" width="250" class="form-item" />

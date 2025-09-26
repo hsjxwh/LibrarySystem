@@ -16,6 +16,9 @@ import ProcessRecommendRecord from '@/views/manager/ProcessRecommendRecord.vue';
 import WaitToProcurement from '@/views/manager/WaitToProcurement.vue';
 import ForceQuit from '@/views/manager/ForceQuit.vue';
 import TestUser from '@/views/manager/TestUser.vue';
+import OrdersCheck from '@/views/manager/OrdersCheck.vue';
+import ReaderOrders from '@/views/user/ReaderOrders.vue';
+import UserPay from '@/views/manager/UserPay.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/infolast', component: Info },
@@ -32,6 +35,9 @@ const routes = [
   { path: '/Manager/WaitToProcurement', component: WaitToProcurement },
   { path: '/Manager/ForceQuit', component: ForceQuit },
   { path: '/Manager/TestUser', component: TestUser },
+  { path: '/Manager/OrdersCheck', component: OrdersCheck },
+  { path: '/Manager/ReaderOrders', component: ReaderOrders },
+  { path: '/Manager/UserPay', component: UserPay },
 ];
 const router = createRouter({
   history: createWebHistory(),
