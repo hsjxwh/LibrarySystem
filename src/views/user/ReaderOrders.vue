@@ -55,6 +55,7 @@
         <el-table-column prop="bookId" label="借阅书籍编号" width="200" class="form-item" />
         <el-table-column prop="name" label="借阅书籍名称" width="200" class="form-item" />
         <el-table-column prop="author" label="借阅书籍作者" width="200" class="form-item" />
+        <el-table-column prop="back" label="是否退还" width="100" class="form-item" />
       </el-table>
     </el-card>
   </div>
@@ -101,6 +102,7 @@ function getRecord() {
           bookId: item.bookId,
           name: item.name,
           author: item.author,
+          back: item.back ? '是' : '否',
         };
       });
       allData.value = dataWithRank;

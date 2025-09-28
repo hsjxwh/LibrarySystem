@@ -42,7 +42,7 @@
           <el-button class="button2" @click="activeContent = 'open'">开通借阅服务</el-button>
         </div>
         <div>
-          <el-button class="button2" @click="activeContent = 'rechange'">用户押金充值</el-button>
+          <el-button class="button2" @click="activeContent = 'recharge'">用户押金充值</el-button>
         </div>
         <div>
           <el-button class="button2" @click="showRecord">所有借阅记录</el-button>
@@ -72,7 +72,7 @@
           </div>
         </div>
         <!-- 用户充值 -->
-        <div v-if="activeContent === 'rechange'" class="form-container">
+        <div v-if="activeContent === 'recharge'" class="form-container">
           <div class="form-item">
             <el-button class="button1" @click="checkIdentity">连接电脑/手机端</el-button>
           </div>
@@ -86,12 +86,19 @@
           </div>
           <div class="form-item">
             <span>充值金额:</span>
-            <el-input class="form-input" v-model="rechange" placeholder="最少5元" />
+            <el-input class="form-input" v-model="recharge" placeholder="最少5元" />
           </div>
           <div class="form-item">
-            <el-button class="button1" @click="userRechange">充值</el-button>
+            <el-button class="button1" @click="userRecharge">充值</el-button>
           </div>
-          <el-dialog title="用户充值" v-model="rechangeDialogVisible" width="500px"></el-dialog>
+          <el-dialog title="用户充值" v-model="rechargeDialogVisible" width="500px">
+            <div class="form-item">用户编号:{{ id }}</div>
+            <div class="form-item">充值金额:{{ recharge }}</div>
+            <div class="form-item">
+              <el-button class="button1" @click="submitRecharge">确定</el-button>
+              <el-button class="button1" @click="closeRecharge">取消</el-button>
+            </div>
+          </el-dialog>
         </div>
         <!-- 查看所有借阅记录并操作 -->
         <div v-if="activeContent === 'record'" class="form-container">
@@ -283,6 +290,9 @@
             <el-button class="button1" @click="closeService">取消</el-button>
           </div>
         </el-dialog>
+        <el-dialog title="等待手机扫码中..." v-model="waitPhoneScanning">
+          <div class="form-item">请用和电脑端建立连接的手机扫描用户付款码</div>
+        </el-dialog>
         <div class="scanner-container" v-if="scanDialogVisible">
           <div class="exit-button" @click="stopScanningOnly">
             <el-icon><ArrowLeft /></el-icon>
@@ -308,7 +318,7 @@ import { ArrowLeft } from '@element-plus/icons-vue';
 import QrcodeVue from 'qrcode.vue';
 const renewDialogVisible = ref(false);
 const ReturnDialogVisible = ref(false);
-const rechangeDialogVisible = ref(false);
+const rechargeDialogVisible = ref(false);
 const currentPage = ref(1);
 const currentRow = ref(null);
 const tableData = ref([]);
@@ -324,7 +334,7 @@ const refund = ref('');
 const bookDialogVisible = ref(false);
 const startServiceeDialogVisible = ref(false);
 const socketDialogVisible = ref(false);
-const rechange = ref('');
+const recharge = ref('');
 const serviceMode = ref('');
 const qrDialogVisible = ref(false);
 const scanDialogVisible = ref(false);
@@ -349,11 +359,9 @@ const connectionTimer = ref(null);
 //连接时长
 const CONNECTION_TIMEOUT = 60 * 60 * 1000;
 const serviceType = ref();
-const closeMessage = {
-  status: 3,
-  id: -1,
-  message: '正常关闭连接',
-};
+const purpose = ref('');
+const waitPhoneScanning = ref(false);
+const payType = ref('');
 //绑定事件监听器
 function setupWebSocketEvents() {
   connection.value.onopen = function () {
@@ -379,8 +387,33 @@ function setupWebSocketEvents() {
       connection.value.close();
     }
     //成功登录，或者说成功开通服务，成功充值
-    else if (data.status === 4 || data.status === 5 || data.status === 6) {
+    else if (data.status === 4) {
       ElMessage.success(data.message);
+    } else if (data.status === 6) {
+      waitPhoneScanning.value = false;
+      ElMessage.success(data.message);
+    } else if (data.status === 5) {
+      waitPhoneScanning.value = false;
+      ElMessage.success(data.message);
+      id.value = data.id;
+    }
+    //电脑端正在开通服务
+    else if (data.status === 10) {
+      serviceType.value = data.serviceType;
+      id.value = data.id;
+      purpose.value = data.purpose;
+      ElMessage.info(data.message);
+      pay.value = true;
+      payType.value = data.payType;
+    }
+    //电脑端正在充值
+    else if (data.status === 11) {
+      id.value = data.id;
+      purpose.value = data.purpose;
+      ElMessage.info(data.message);
+      recharge.value = data.recharge;
+      pay.value = true;
+      payType.value = data.payType;
     } else {
       ElMessage.error('网站出错，联系管理员');
     }
@@ -401,7 +434,7 @@ async function computerContect() {
     await getQR();
     connectToken.value = QR.value;
     connection.value = new WebSocket(
-      `ws://localhost:8080/manager/connect?connectToken=${connectToken.value}&device=pc`
+      `wss://whswlibrarysystem.top/manager/connect?connectToken=${connectToken.value}&device=pc`
     );
     setupWebSocketEvents();
   }
@@ -452,27 +485,40 @@ function scanning() {
         if (!connection.value || connection.value.readyState !== WebSocket.OPEN) {
           connectToken.value = code.data;
           connection.value = new WebSocket(
-            `ws://localhost:8080/manager/connect?connectToken=${connectToken.value}&device=phone`
+            `wss://whswlibrarysystem.top/manager/connect?connectToken=${connectToken.value}&device=phone`
           );
           setupWebSocketEvents();
           stopScanningOnly();
         } else {
           if (pay.value) {
-            connection.value.send(
-              JSON.stringify({
-                status: 5,
-                id: -1,
-                message: code.data,
-                serviceType: serviceType.value,
-              })
-            );
+            if (payType.value === '充值') {
+              connection.value.send(
+                JSON.stringify({
+                  status: 6,
+                  id: id.value,
+                  message: code.data,
+                  serviceType: serviceType.value,
+                  purpose: purpose.value,
+                  recharge: recharge.value,
+                })
+              );
+            } else {
+              connection.value.send(
+                JSON.stringify({
+                  status: 5,
+                  id: id.value,
+                  message: code.data,
+                  serviceType: serviceType.value,
+                  purpose: purpose.value,
+                })
+              );
+            }
           } else {
             connection.value.send(
               JSON.stringify({
                 status: 1,
                 id: code.data,
                 message: '扫描到身份码信息',
-                serviceType: serviceType.value,
               })
             );
           }
@@ -506,7 +552,7 @@ function stopScanningOnly() {
 function stopScanning() {
   stopScanningOnly();
   if (connection.value && connection.value.readyState === WebSocket.OPEN) {
-    connection.send(
+    connection.value.send(
       JSON.stringify({
         status: 3,
         id: -1,
@@ -518,6 +564,12 @@ function stopScanning() {
 }
 function disconnect() {
   if (connection.value) {
+    connection.value.send(
+      JSON.stringify({
+        status: 3,
+        message: '请求关闭',
+      })
+    );
     connection.value.close();
   }
   clearConnectionTimer();
@@ -726,7 +778,6 @@ function submitBook() {
     })
     .then((response) => {
       ElMessage.info(response.data);
-      id.value = '';
       name.value = '';
       author.value = '';
     })
@@ -773,30 +824,68 @@ function serviceStart(money) {
   startServiceeDialogVisible.value = true;
 }
 //显示充值窗口
-function userRechange() {
+function userRecharge() {
   if (id.value.trim().length <= 0) {
     ElMessage.warning('请输入读者编号');
     return;
   }
-  if (rechange.value.trim().length <= 0) {
+  if (isNaN(recharge.value) || recharge.value < 0) {
     ElMessage.warning('请输入充值金额');
     return;
   } else {
-    if (parseFloat(rechange.value) < 5) {
+    if (parseFloat(recharge.value) < 5) {
       ElMessage.warning('充值金额不能小于5元');
       return;
     }
   }
-  rechangeDialogVisible.value = true;
+  rechargeDialogVisible.value = true;
+}
+//改变手机端的状态信息
+function submitRecharge() {
+  pay.value = true;
+  purpose.value = '充值服务';
+  payType.value = '充值';
+  connection.value.send(
+    JSON.stringify({
+      status: 11,
+      id: id.value,
+      message: '电脑端在给用户充值中...',
+      serviceType: serviceType.value,
+      purpose: purpose.value,
+      recharge: recharge.value,
+      payType: payType.value,
+    })
+  );
+  waitPhoneScanning.value = true;
+  payType.value = '';
+}
+function closeRecharge() {
+  rechargeDialogVisible.value = false;
+  recharge.value = '';
 }
 //修改用户的目前拥有的服务
 function startService() {
   pay.value = true;
-  phoneConect();
+  purpose.value = '开通借阅服务';
+  payType.value = '开通服务';
+  connection.value.send(
+    JSON.stringify({
+      status: 10,
+      id: id.value,
+      message: '电脑端在开通用户的借阅服务功能',
+      serviceType: serviceType.value,
+      purpose: purpose.value,
+      payType: payType.value,
+    })
+  );
+  waitPhoneScanning.value = true;
+  payType.value = '';
 }
 //关闭服务窗口
 function closeService() {
   startServiceeDialogVisible.value = false;
+  serviceMode.value = '';
+  serviceType.value = null;
 }
 </script>
 <style scoped>

@@ -77,6 +77,7 @@
             <el-table-column prop="bookId" label="书籍编号" width="200px" />
             <el-table-column prop="name" label="书籍名称" width="200px" />
             <el-table-column prop="author" label="书籍作者" width="200px" />
+            <el-table-column prop="back" label="是否退还" width="100px" />
           </el-table>
         </el-card>
         <div>
@@ -114,6 +115,7 @@ function treat(response) {
     return {
       ...item,
       time: dealWithTime(item.date),
+      back: item.back ? '是' : '否',
     };
   });
   allData.value = dataWithRank;

@@ -46,9 +46,6 @@
       <div>
         <el-input type="text" placeholder="请输入金额" v-model="money"></el-input>
       </div>
-      <div>
-        <el-input type="text" placeholder="请输入用途" v-model="purpose"></el-input>
-      </div>
       <qrcode-vue :value="QR" :size="200" level="H"></qrcode-vue>
       <div>
         <el-button class="button2" @click="getQR">获取二维码</el-button>
@@ -64,7 +61,6 @@ import QrcodeVue from 'qrcode.vue';
 import { ElMessage } from 'element-plus';
 const id = ref(null);
 const money = ref(null);
-const purpose = ref('');
 const QR = ref('');
 function getQR() {
   service
@@ -72,7 +68,6 @@ function getQR() {
       params: {
         id: id.value,
         money: money.value,
-        purpose: purpose.value,
       },
       paramsSerializer: {
         indexes: null,
