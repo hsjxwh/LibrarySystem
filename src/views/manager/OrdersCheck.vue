@@ -114,7 +114,7 @@ function treat(response) {
   const dataWithRank = response.data.map((item, index) => {
     return {
       ...item,
-      time: dealWithTime(item.date),
+      time: dealWithTime(item.time),
       back: item.back ? '是' : '否',
     };
   });

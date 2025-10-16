@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getCookie } from './cookie';
 const service = axios.create({
-  baseURL: 'https://whswlibrarysystem.top', //对所有的后端api进行拦截并做对应的操作
+  baseURL: 'http://localhost:8080', //对所有的后端api进行拦截并做对应的操作
   withCredentials: true,
   timeout: 50000,
 });

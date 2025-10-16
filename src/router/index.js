@@ -36,7 +36,7 @@ const routes = [
   { path: '/Manager/ForceQuit', component: ForceQuit },
   { path: '/Manager/TestUser', component: TestUser },
   { path: '/Manager/OrdersCheck', component: OrdersCheck },
-  { path: '/Manager/ReaderOrders', component: ReaderOrders },
+  { path: '/ReaderOrders', component: ReaderOrders },
   { path: '/Manager/UserPay', component: UserPay },
 ];
 const router = createRouter({
