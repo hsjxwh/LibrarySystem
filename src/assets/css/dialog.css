@@ -9,6 +9,7 @@
   text-align: right;
   margin-right: 12px;
   font-size: 14px;
+  flex-shrink: 0;
 }
 .input-control {
   flex: 1;

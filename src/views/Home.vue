@@ -90,25 +90,34 @@
           <div class="form-container">
             <div class="input-item">
               <label class="label-text">昵称:</label>
-              <input
-                v-model="password"
-                type="text"
-                class="input-control"
-                placeholder="请输入昵称"
-              />
+              <input v-model="name" type="text" class="input-control" placeholder="请输入昵称" />
             </div>
             <div class="input-item">
-              <label class="label-text">手机号:</label>
-              <input v-model="id" type="text" class="input-control" placeholder="请输入手机号" />
+              <label class="label-text">邮箱:</label>
+              <input v-model="email" type="text" class="input-control" placeholder="请输入邮箱" />
             </div>
             <div class="input-item">
-              <label class="label-text">验证码:</label>
+              <label class="label-text">密码:</label>
               <input
                 v-model="password"
                 type="password"
                 class="input-control"
+                placeholder="请输入密码"
+              />
+            </div>
+            <div class="input-item">
+              <label class="label-text">验证码:</label>
+              <input
+                v-model="verification"
+                type="text"
+                class="input-control code-input"
                 placeholder="请输入验证码"
               />
+              <div class="code-input-group">
+                <el-button type="primary" class="button1" @click="sendVerificationCode">
+                  发送验证码
+                </el-button>
+              </div>
             </div>
             <div class="button-group">
               <el-button v-on:click="registerSubmit" color="#3a0783" class="login">登录</el-button>
@@ -136,6 +145,8 @@ const id = ref('');
 const password = ref('');
 const name = ref('');
 const dest = ref('');
+const email = ref('');
+const verification = ref('');
 function getDestAndJump(url) {
   switch (url) {
     case '/user/checkUserPassword':
@@ -201,12 +212,93 @@ function loginSubmit(url) {
       ElMessage.error('网站出错，请联系管理员');
     });
 }
-function registerSubmit() {}
+function check() {
+  if (name.value.trim().length <= 0) {
+    ElMessage.warning('请输入昵称');
+    return false;
+  }
+  if (email.value.trim().length <= 0) {
+    ElMessage.warning('请输入邮箱');
+    return false;
+  }
+  if (password.value.trim().length <= 0) {
+    ElMessage.warning('请输入密码');
+    return false;
+  }
+  return true;
+}
+function sendVerificationCode() {
+  if (!check()) {
+    return;
+  }
+  service
+    .get('/user/getRegisterVerification', {
+      params: {
+        email: email.value,
+      },
+      paramsSerializer: {
+        indexes: null,
+      },
+    })
+    .then((response) => {
+      ElMessage.info(response.data);
+    })
+    .catch((error) => {
+      if (error.response) {
+        ElMessage.error(error.response.data);
+        return;
+      }
+    });
+}
+function registerSubmit() {
+  if (!check()) {
+    return;
+  }
+  if (verification.value.trim().length <= 0) {
+    ElMessage.warning('请输入验证码');
+    return;
+  }
+  const formData = new URLSearchParams();
+  formData.append('token', verification.value);
+  service
+    .post('/user/registerUser', formData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
+      ElMessage.success(ElMessage.info(`您的账号注册成功，请登录，您的账号为：${response.data}`));
+      clearInput();
+      switchLogin();
+    })
+    .catch((error) => {
+      if (error.response) {
+        ElMessage.error('验证码错误或已过期');
+        return;
+      }
+    });
+}
 </script>
 
 <style scoped>
 @import url('../assets/css/dialog.css');
 @import url('../assets/css/top.css');
+@import url('../assets/css/buttons.css');
+.code-input-group {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.code-input {
+  flex: 1;
+}
+
+.get-code-btn {
+  white-space: nowrap;
+  min-width: 100px;
+}
+
 .login {
   margin-left: 40px;
 }

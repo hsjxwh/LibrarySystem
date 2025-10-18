@@ -37,22 +37,20 @@
       </div>
     </el-header>
     <el-container style="flex: 1">
-      <el-aside width="150px">
+      <el-aside width="200px">
         <div>
-          <el-button class="button2" @click="activeContent = 'onlineAccounts'">
-            查看当前所有在线账号
-          </el-button>
+          <el-button class="button2" @click="toOnlineAccounts()">查看当前所有在线账号</el-button>
         </div>
         <div>
-          <el-button class="button2" @click="activeContent = 'blacklist'">黑名单管理</el-button>
+          <el-button class="button2" @click="toBlacklist()">黑名单管理</el-button>
         </div>
       </el-aside>
       <el-main>
-        <div v-if="activeContent === 'onlineAccounts'" class="form-container">
+        <div class="form-container" v-if="activeContent === 'onlineAccounts'">
           <el-table :data="tableData" style="width: 100%; margin-left: 20px" stripe>
             <el-table-column prop="role" label="身份" width="250" class="form-item" />
             <el-table-column prop="id" label="账号" width="250" class="form-item" />
-            <el-table-column label="审核" width="250" class="form-item">
+            <el-table-column label="操作" width="250" class="form-item">
               <template #default="scope">
                 <el-button
                   type="primary"
@@ -61,6 +59,25 @@
                   class="button1"
                 >
                   强制下线
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div class="form-container" v-if="activeContent === 'blacklist'">
+          <el-table :data="tableData" style="width: 100%; margin-left: 20px" stripe>
+            <el-table-column prop="ip" label="ip地址" width="250" class="form-item" />
+            <el-table-column prop="role" label="身份" width="250" class="form-item" />
+            <el-table-column prop="id" label="账号" width="250" class="form-item" />
+            <el-table-column label="操作" width="250" class="form-item">
+              <template #default="scope">
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="pullOutTheBlackList(scope.row)"
+                  class="button1"
+                >
+                  拉出黑名单
                 </el-button>
               </template>
             </el-table-column>
@@ -81,11 +98,13 @@
   </el-container>
 </template>
 <script setup>
-import { ref } from 'vue';
 import service from '@/utils/global';
 import { siteError } from '@/utils/error';
 import { handleCurrentChange, updateTableData } from '@/utils/paperCut';
 import { ElMessage } from 'element-plus';
+import { onMounted, ref, onUnmounted } from 'vue';
+//定时器变量
+let refreshTimer = null;
 const currentPage = ref(1);
 const currentRow = ref(null);
 const pageSize = ref(20);
@@ -93,6 +112,11 @@ const total = ref(0);
 const allData = ref([]);
 const activeContent = ref('onlineAccounts');
 const tableData = ref([]);
+onMounted(() => {
+  getAllOnlineAccounts();
+  //启动定时刷新
+  startAutoRefresh();
+});
 function getAllOnlineAccounts() {
   service
     .get('/manager/getAllOnlineAccounts')
@@ -114,11 +138,105 @@ function treat(response) {
   const dataWithRank = response.data.map((item, index) => {
     return {
       ...item,
+      role: item.role === '' ? '-' : item.role === 'manager' ? '管理员' : '读者',
+      id: item.id === '' ? '-' : item.id,
     };
   });
   allData.value = dataWithRank;
   total.value = dataWithRank.length;
   updateTableData(allData, tableData, currentPage, pageSize);
+}
+function startAutoRefresh() {
+  clearImmediate();
+  //如果有定时器，清除旧的
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+  }
+  if (activeContent.value === 'blacklist') {
+    refreshTimer = setInterval(() => {
+      getAllOnlineAccounts();
+    }, 300000);
+  } else {
+    refreshTimer = setInterval(() => {
+      getAllOnlineAccounts();
+    }, 300000);
+  }
+}
+onUnmounted(() => {
+  clearImmediate();
+});
+function getBlackList() {
+  service
+    .get('/manager/getBlackList')
+    .then((response) => {
+      treat(response);
+    })
+    .catch((error) => {
+      if (error.response) {
+        ElMessage.error(error.response.data);
+        return;
+      }
+      siteError();
+    });
+}
+function toOnlineAccounts() {
+  activeContent.value = 'onlineAccounts';
+  getAllOnlineAccounts();
+  startAutoRefresh();
+}
+function toBlacklist() {
+  activeContent.value = 'blacklist';
+  getBlackList();
+  startAutoRefresh();
+}
+function pullOutTheBlackList(row) {
+  const formData = new URLSearchParams();
+  formData.append('ip', row.ip);
+  service
+    .post('/manager/pullOutTheBlackList', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    .then((response) => {
+      ElMessage.info(response.data);
+      getAllOnlineAccounts();
+    })
+    .catch((error) => {
+      if (error.response) {
+        ElMessage.error(error.response.data);
+        return;
+      }
+      siteError();
+    });
+}
+function forceQuit(row) {
+  const formData = new URLSearchParams();
+  formData.append('id', row.id);
+  formData.append('role', row.role === '管理员' ? 'manager' : 'user');
+  service
+    .post('/manager/forceSomeoneQuit', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    .then((response) => {
+      ElMessage.info(response.data);
+      getAllOnlineAccounts();
+    })
+    .catch((error) => {
+      if (error.response) {
+        ElMessage.error(error.response.data);
+        return;
+      }
+      siteError();
+    });
+}
+function clearImmediate() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
 }
 </script>
 <style scoped>
